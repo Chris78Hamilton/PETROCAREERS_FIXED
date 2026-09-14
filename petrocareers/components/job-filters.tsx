@@ -4,13 +4,12 @@ import { useState, useRef } from "react"
 import { Search, Upload, X, FileText } from "lucide-react"
 import {
   Filters,
-  PROFESSIONAL_FIELDS,
   COUNTRIES,
   REGIONS,
   NATIONALITIES,
   EXPERIENCE_LEVELS,
   CONTRACT_TYPES,
-  QUICK_TAGS,
+  SECTOR_CONFIG,
 } from "@/lib/types"
 
 interface JobFiltersProps {
@@ -21,6 +20,9 @@ interface JobFiltersProps {
 }
 
 export function JobFilters({ filters, onFiltersChange, onSearch, isLoading }: JobFiltersProps) {
+  const sectorConfig = SECTOR_CONFIG[filters.sector]
+  const professionalFields = sectorConfig.professionalFields
+  const quickTags = sectorConfig.quickTags
   const [cvFileName, setCvFileName] = useState<string>("")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -70,7 +72,7 @@ export function JobFilters({ filters, onFiltersChange, onSearch, isLoading }: Jo
             onChange={(e) => handleFilterChange("field", e.target.value)}
             className="w-full h-10 px-3 rounded-md border border-input bg-input text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            {PROFESSIONAL_FIELDS.map((field) => (
+            {professionalFields.map((field) => (
               <option key={field} value={field === "All Fields" ? "" : field}>
                 {field}
               </option>
@@ -187,7 +189,7 @@ export function JobFilters({ filters, onFiltersChange, onSearch, isLoading }: Jo
       <div className="space-y-3">
         <label className="text-sm font-medium text-foreground">Quick Filters</label>
         <div className="flex flex-wrap gap-2">
-          {QUICK_TAGS.map((tag) => (
+          {quickTags.map((tag) => (
             <button
               key={tag.id}
               onClick={() => handleQuickTagToggle(tag.id)}
