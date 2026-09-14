@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Briefcase, TrendingUp } from "lucide-react"
-import { Job } from "@/lib/types"
+import { Job, Sector, SECTOR_CONFIG } from "@/lib/types"
 import { JobCard } from "./job-card"
 import { JobDetails } from "./job-details"
 
@@ -10,9 +10,10 @@ interface JobListProps {
   jobs: Job[]
   isLoading: boolean
   hasSearched: boolean
+  sector: Sector
 }
 
-export function JobList({ jobs, isLoading, hasSearched }: JobListProps) {
+export function JobList({ jobs, isLoading, hasSearched, sector }: JobListProps) {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [sortBy, setSortBy] = useState<"relevance" | "match" | "date" | "salary">("relevance")
 
@@ -67,8 +68,7 @@ export function JobList({ jobs, isLoading, hasSearched }: JobListProps) {
         </div>
         <h3 className="text-xl font-semibold text-foreground mb-2">Find Your Next Opportunity</h3>
         <p className="text-muted-foreground max-w-md mx-auto">
-          Use the filters above to search for oil and gas jobs from top companies worldwide. 
-          Upload your CV for AI-powered job matching.
+          {SECTOR_CONFIG[sector].emptyStateCopy} Upload your CV for AI-powered job matching.
         </p>
       </div>
     )
