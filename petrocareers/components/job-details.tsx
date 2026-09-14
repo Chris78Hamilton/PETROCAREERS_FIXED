@@ -1,24 +1,21 @@
 "use client"
 
-import { 
-  X, 
-  MapPin, 
-  DollarSign, 
-  Briefcase, 
-  Clock, 
-  Globe, 
-  Users, 
+import {
+  X,
+  MapPin,
+  DollarSign,
+  Briefcase,
+  Clock,
+  Globe,
+  Users,
   GraduationCap,
   CheckCircle,
   Gift,
-  Anchor,
-  Mountain,
-  RotateCw,
-  Plane,
   Zap,
   ExternalLink
 } from "lucide-react"
-import { Job } from "@/lib/types"
+import { Job, TAG_META, getCompanyColor } from "@/lib/types"
+import { getTagIcon } from "@/lib/tag-icon"
 
 interface JobDetailsProps {
   job: Job
@@ -26,35 +23,6 @@ interface JobDetailsProps {
 }
 
 export function JobDetails({ job, onClose }: JobDetailsProps) {
-  const getCompanyColor = (company: string) => {
-    const colors: Record<string, string> = {
-      Shell: "bg-yellow-600",
-      BP: "bg-green-600",
-      "Saudi Aramco": "bg-green-700",
-      Aramco: "bg-green-700",
-      ADNOC: "bg-blue-600",
-      SLB: "bg-blue-500",
-      Schlumberger: "bg-blue-500",
-      Halliburton: "bg-red-600",
-      TotalEnergies: "bg-red-500",
-      Chevron: "bg-blue-700",
-      ExxonMobil: "bg-red-700",
-      "Baker Hughes": "bg-emerald-600",
-      Weatherford: "bg-orange-600",
-      NOV: "bg-purple-600",
-      Petrobras: "bg-green-500",
-      ONGC: "bg-orange-500",
-      Equinor: "bg-teal-600",
-    }
-    
-    for (const [key, value] of Object.entries(colors)) {
-      if (company.toLowerCase().includes(key.toLowerCase())) {
-        return value
-      }
-    }
-    return "bg-primary"
-  }
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
       <div className="bg-card border border-border rounded-xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-xl">
@@ -145,30 +113,20 @@ export function JobDetails({ job, onClose }: JobDetailsProps) {
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-6">
-            {job.isOffshore && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent/20 text-accent text-sm rounded-lg">
-                <Anchor className="w-4 h-4" />
-                Offshore
-              </span>
-            )}
-            {job.isOnshore && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success/20 text-success text-sm rounded-lg">
-                <Mountain className="w-4 h-4" />
-                Onshore
-              </span>
-            )}
-            {job.isRotation && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-warning/20 text-warning text-sm rounded-lg">
-                <RotateCw className="w-4 h-4" />
-                Rotation Schedule
-              </span>
-            )}
-            {job.hasExpatPackage && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/20 text-primary text-sm rounded-lg">
-                <Plane className="w-4 h-4" />
-                Expat Package
-              </span>
-            )}
+            {job.tags?.map((tagId) => {
+              const meta = TAG_META[tagId]
+              if (!meta) return null
+              const Icon = getTagIcon(meta.icon)
+              return (
+                <span
+                  key={tagId}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg ${meta.className}`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {meta.label}
+                </span>
+              )
+            })}
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-secondary-foreground text-sm rounded-lg">
               <Clock className="w-4 h-4" />
               Posted {job.postedDate}
