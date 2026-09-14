@@ -5,9 +5,11 @@ import { AlertTriangle } from "lucide-react"
 import { Header } from "@/components/header"
 import { JobFilters } from "@/components/job-filters"
 import { JobList } from "@/components/job-list"
-import { Filters, Job } from "@/lib/types"
+import { SectorTabs } from "@/components/sector-tabs"
+import { Filters, Job, Sector, SECTOR_CONFIG } from "@/lib/types"
 
 const initialFilters: Filters = {
+  sector: "oil-gas",
   field: "",
   country: "",
   region: "",
@@ -26,6 +28,23 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const activeSectorConfig = SECTOR_CONFIG[filters.sector]
+
+  const handleSectorChange = (sector: Sector) => {
+    // Each sector has its own professional-field and quick-tag vocabulary,
+    // so reset those two when switching sectors rather than carrying over
+    // values that no longer exist for the new sector.
+    setFilters({
+      ...filters,
+      sector,
+      field: "",
+      quickTags: [],
+    })
+    setJobs([])
+    setHasSearched(false)
+    setErrorMessage(null)
+  }
 
   const handleSearch = async () => {
     setIsLoading(true)
@@ -94,17 +113,19 @@ export default function Home() {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
+        {/* Sector Tabs */}
+        <SectorTabs sector={filters.sector} onSectorChange={handleSectorChange} />
+
         {/* Hero Section */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Find Your Next <span className="text-primary">Oil & Gas</span> Career
+            Find Your Next <span className="text-primary">{activeSectorConfig.heroHighlight}</span> Career
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Search through live job opportunities from industry leaders like Shell, BP, Aramco, 
-            ADNOC, SLB, Halliburton, and more. Upload your CV for AI-powered job matching.
+            {activeSectorConfig.description}
           </p>
         </div>
-        
+
         {/* Stats Bar */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-card border border-border rounded-lg p-4 text-center">
@@ -150,10 +171,11 @@ export default function Home() {
         )}
 
         {/* Job Listings */}
-        <JobList 
-          jobs={jobs} 
-          isLoading={isLoading} 
+        <JobList
+          jobs={jobs}
+          isLoading={isLoading}
           hasSearched={hasSearched}
+          sector={filters.sector}
         />
       </main>
       
