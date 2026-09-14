@@ -1,7 +1,8 @@
 "use client"
 
-import { MapPin, Briefcase, DollarSign, Clock, Anchor, Mountain, RotateCw, Plane, Zap } from "lucide-react"
-import { Job } from "@/lib/types"
+import { MapPin, Briefcase, DollarSign, Clock, Zap } from "lucide-react"
+import { Job, TAG_META, getCompanyColor } from "@/lib/types"
+import { getTagIcon } from "@/lib/tag-icon"
 
 interface JobCardProps {
   job: Job
@@ -9,35 +10,6 @@ interface JobCardProps {
 }
 
 export function JobCard({ job, onClick }: JobCardProps) {
-  const getCompanyColor = (company: string) => {
-    const colors: Record<string, string> = {
-      Shell: "bg-yellow-600",
-      BP: "bg-green-600",
-      "Saudi Aramco": "bg-green-700",
-      Aramco: "bg-green-700",
-      ADNOC: "bg-blue-600",
-      SLB: "bg-blue-500",
-      Schlumberger: "bg-blue-500",
-      Halliburton: "bg-red-600",
-      TotalEnergies: "bg-red-500",
-      Chevron: "bg-blue-700",
-      ExxonMobil: "bg-red-700",
-      "Baker Hughes": "bg-emerald-600",
-      Weatherford: "bg-orange-600",
-      NOV: "bg-purple-600",
-      Petrobras: "bg-green-500",
-      ONGC: "bg-orange-500",
-      Equinor: "bg-teal-600",
-    }
-    
-    for (const [key, value] of Object.entries(colors)) {
-      if (company.toLowerCase().includes(key.toLowerCase())) {
-        return value
-      }
-    }
-    return "bg-primary"
-  }
-
   return (
     <div
       onClick={onClick}
@@ -73,30 +45,20 @@ export function JobCard({ job, onClick }: JobCardProps) {
           </div>
 
           <div className="flex flex-wrap gap-2 mt-4">
-            {job.isOffshore && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent/20 text-accent text-xs rounded-md">
-                <Anchor className="w-3 h-3" />
-                Offshore
-              </span>
-            )}
-            {job.isOnshore && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-success/20 text-success text-xs rounded-md">
-                <Mountain className="w-3 h-3" />
-                Onshore
-              </span>
-            )}
-            {job.isRotation && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-warning/20 text-warning text-xs rounded-md">
-                <RotateCw className="w-3 h-3" />
-                Rotation
-              </span>
-            )}
-            {job.hasExpatPackage && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/20 text-primary text-xs rounded-md">
-                <Plane className="w-3 h-3" />
-                Expat Package
-              </span>
-            )}
+            {job.tags?.map((tagId) => {
+              const meta = TAG_META[tagId]
+              if (!meta) return null
+              const Icon = getTagIcon(meta.icon)
+              return (
+                <span
+                  key={tagId}
+                  className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md ${meta.className}`}
+                >
+                  <Icon className="w-3 h-3" />
+                  {meta.label}
+                </span>
+              )
+            })}
           </div>
         </div>
 
@@ -105,7 +67,7 @@ export function JobCard({ job, onClick }: JobCardProps) {
             <Zap className="w-3 h-3 text-success" />
             <span className="text-xs font-medium text-success">Live</span>
           </div>
-          
+
           {job.matchScore !== undefined && (
             <div className={`px-3 py-1.5 rounded-lg text-center ${
               job.matchScore >= 80 ? "bg-success/20 text-success" :
@@ -116,7 +78,7 @@ export function JobCard({ job, onClick }: JobCardProps) {
               <div className="text-xs">Match</div>
             </div>
           )}
-          
+
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
             {job.postedDate}
