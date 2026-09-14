@@ -1,6 +1,7 @@
 import { generateObject } from "ai"
 import { createGroq } from "@ai-sdk/groq"
 import { z } from "zod"
+import { SECTOR_CONFIG, Sector } from "@/lib/types"
 
 const GROQ_API_KEY =
   process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY
@@ -20,10 +21,7 @@ const jobSchema = z.object({
       contractType: z.string(),
       experienceLevel: z.string(),
       field: z.string(),
-      isOffshore: z.boolean(),
-      isOnshore: z.boolean(),
-      isRotation: z.boolean(),
-      hasExpatPackage: z.boolean(),
+      tags: z.array(z.string()),
       postedDate: z.string(),
       description: z.string(),
       requirements: z.array(z.string()),
@@ -47,7 +45,15 @@ export async function POST(request: Request) {
 
     const filters = await request.json()
 
-    const prompt = `Generate 10 realistic oil and gas job listings from real companies like Shell, BP, Saudi Aramco, ADNOC, SLB (Schlumberger), Halliburton, TotalEnergies, Chevron, ExxonMobil, Baker Hughes, Weatherford, NOV, Petrobras, ONGC, Equinor.
+    const sector: Sector = (filters.sector as Sector) in SECTOR_CONFIG ? filters.sector : "oil-gas"
+    const sectorConfig = SECTOR_CONFIG[sector]
+    const companyList = sectorConfig.companies.join(", ")
+    const validTagIds = sectorConfig.quickTags.map((t) => t.id)
+    const tagDescriptions = sectorConfig.quickTags
+      .map((t) => `"${t.id}" (${t.label})`)
+      .join(", ")
+
+    const prompt = `Generate 10 realistic ${sectorConfig.label} job listings from real companies like ${companyList}.
 
 Filters applied:
 - Professional Field: ${filters.field || "Any"}
@@ -62,11 +68,11 @@ Filters applied:
 ${filters.cvContent ? `CV Content for matching: ${filters.cvContent.substring(0, 1500)}` : ""}
 
 Generate diverse, realistic job listings that match these filters. Include:
-- Realistic job titles for oil & gas industry (e.g., Senior Drilling Engineer, HSE Manager, Reservoir Simulation Engineer, Subsea Installation Engineer)
-- Real company names from the major oil & gas companies
-- Realistic locations (Abu Dhabi, Houston, Perth, Lagos, Luanda, Stavanger, Singapore, Doha, etc.)
+- Realistic job titles for the ${sectorConfig.label} industry, drawn from roles such as: ${sectorConfig.professionalFields.filter((f) => f !== "All Fields").join(", ")}
+- Real company names from this list: ${companyList}
+- Realistic locations appropriate to this sector and industry (major hubs, project sites, or offices worldwide)
 - Appropriate salary ranges in USD (annual for permanent, daily for contract)
-- Mix of offshore/onshore, rotation/permanent positions
+- For the "tags" field on each job, choose 1-3 relevant ids ONLY from this exact set: ${tagDescriptions}. Use only these ids (lowercase, exactly as given) — do not invent new tag ids.
 - Realistic requirements and benefits
 - Posted dates within the last 30 days
 
@@ -78,7 +84,15 @@ Make the jobs feel authentic and current for 2026.`
       prompt,
     })
 
-    return Response.json(result.object)
+    // Defensive guard: keep only tag ids that are valid for this sector, in
+    // case the model returns a tag id from a different sector or invents one.
+    const validTagSet = new Set(validTagIds)
+    const sanitizedJobs = result.object.jobs.map((job) => ({
+      ...job,
+      tags: job.tags.filter((tag) => validTagSet.has(tag)),
+    }))
+
+    return Response.json({ jobs: sanitizedJobs })
   } catch (error) {
     console.error("Error generating jobs:", error)
     const message =
