@@ -157,37 +157,43 @@ export function JobDetails({ job, onClose }: JobDetailsProps) {
             <p className="text-muted-foreground leading-relaxed">{job.description}</p>
           </div>
 
-          {/* Requirements */}
-          <div className="mb-6">
-            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-accent" />
-              Requirements
-            </h3>
-            <ul className="space-y-2">
-              {job.requirements.map((req, index) => (
-                <li key={index} className="flex items-start gap-2 text-muted-foreground">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
-                  {req}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Requirements — real listings put this in the description text
+              rather than a structured list, so only show this section when
+              we actually have one. */}
+          {job.requirements.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-accent" />
+                Requirements
+              </h3>
+              <ul className="space-y-2">
+                {job.requirements.map((req, index) => (
+                  <li key={index} className="flex items-start gap-2 text-muted-foreground">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    {req}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-          {/* Benefits */}
-          <div className="mb-6">
-            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Gift className="w-4 h-4 text-success" />
-              Benefits
-            </h3>
-            <ul className="space-y-2">
-              {job.benefits.map((benefit, index) => (
-                <li key={index} className="flex items-start gap-2 text-muted-foreground">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success mt-2 flex-shrink-0" />
-                  {benefit}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Benefits — same as above, only shown when populated. */}
+          {job.benefits.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Gift className="w-4 h-4 text-success" />
+                Benefits
+              </h3>
+              <ul className="space-y-2">
+                {job.benefits.map((benefit, index) => (
+                  <li key={index} className="flex items-start gap-2 text-muted-foreground">
+                    <span className="w-1.5 h-1.5 rounded-full bg-success mt-2 flex-shrink-0" />
+                    {benefit}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -201,6 +207,12 @@ export function JobDetails({ job, onClose }: JobDetailsProps) {
             </button>
             <button
               onClick={() => {
+                // Real listings carry their own apply/redirect link — use it
+                // directly. Only fall back to a search if we don't have one.
+                if (job.applyUrl) {
+                  window.open(job.applyUrl, "_blank", "noopener,noreferrer")
+                  return
+                }
                 const query = `${job.title} ${job.company} job application`
                 window.open(
                   `https://www.google.com/search?q=${encodeURIComponent(query)}`,
