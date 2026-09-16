@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, Info } from "lucide-react"
 import { Header } from "@/components/header"
 import { JobFilters } from "@/components/job-filters"
 import { JobList } from "@/components/job-list"
@@ -28,6 +28,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
 
   const activeSectorConfig = SECTOR_CONFIG[filters.sector]
 
@@ -44,13 +45,15 @@ export default function Home() {
     setJobs([])
     setHasSearched(false)
     setErrorMessage(null)
+    setNotice(null)
   }
 
   const handleSearch = async () => {
     setIsLoading(true)
     setHasSearched(true)
     setErrorMessage(null)
-    
+    setNotice(null)
+
     try {
       // Generate jobs
       const jobsResponse = await fetch("/api/generate-jobs", {
@@ -66,7 +69,10 @@ export default function Home() {
       
       const jobsData = await jobsResponse.json()
       let generatedJobs: Job[] = jobsData.jobs || []
-      
+      if (jobsData.notice) {
+        setNotice(jobsData.notice)
+      }
+
       // If CV content exists, get match scores
       if (filters.cvContent && generatedJobs.length > 0) {
         const matchResponse = await fetch("/api/match-cv", {
@@ -166,6 +172,20 @@ export default function Home() {
             <div className="text-sm">
               <p className="font-semibold text-foreground">Unable to load jobs</p>
               <p className="text-muted-foreground">{errorMessage}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Info Banner (e.g. an unsupported country, or thin real-data coverage) */}
+        {notice && !isLoading && !errorMessage && (
+          <div
+            role="status"
+            className="mb-8 flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/10 p-4"
+          >
+            <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <div className="text-sm">
+              <p className="font-semibold text-foreground">Heads up</p>
+              <p className="text-muted-foreground">{notice}</p>
             </div>
           </div>
         )}
