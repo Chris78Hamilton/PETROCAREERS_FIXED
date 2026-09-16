@@ -5,6 +5,7 @@ import { Search, Upload, X, FileText } from "lucide-react"
 import {
   Filters,
   COUNTRIES,
+  COUNTRIES_WITH_REAL_DATA,
   REGIONS,
   NATIONALITIES,
   EXPERIENCE_LEVELS,
@@ -88,11 +89,15 @@ export function JobFilters({ filters, onFiltersChange, onSearch, isLoading }: Jo
             onChange={(e) => handleFilterChange("country", e.target.value)}
             className="w-full h-10 px-3 rounded-md border border-input bg-input text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            {COUNTRIES.map((country) => (
-              <option key={country} value={country === "All Countries" ? "" : country}>
-                {country}
-              </option>
-            ))}
+            {COUNTRIES.map((country) => {
+              const hasRealData = country === "All Countries" || COUNTRIES_WITH_REAL_DATA.includes(country)
+              return (
+                <option key={country} value={country === "All Countries" ? "" : country}>
+                  {country}
+                  {hasRealData ? "" : " (no real listings yet)"}
+                </option>
+              )
+            })}
           </select>
         </div>
 
