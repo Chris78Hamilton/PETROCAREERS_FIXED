@@ -199,7 +199,17 @@ export function JobDetails({ job, onClose }: JobDetailsProps) {
             >
               Close
             </button>
-            <button className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors">
+            <button
+              onClick={() => {
+                const query = `${job.title} ${job.company} job application`
+                window.open(
+                  `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }}
+              className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+            >
               Apply Now
               <ExternalLink className="w-4 h-4" />
             </button>
