@@ -31,13 +31,19 @@ export async function POST(request: Request) {
 
     const { cvContent, jobs } = await request.json()
 
-    const jobSummaries = jobs.map((job: { id: string; title: string; company: string; field: string; requirements: string[] }) => ({
-      id: job.id,
-      title: job.title,
-      company: job.company,
-      field: job.field,
-      requirements: job.requirements,
-    }))
+    const jobSummaries = jobs.map(
+      (job: { id: string; title: string; company: string; field: string; description?: string; requirements?: string[] }) => ({
+        id: job.id,
+        title: job.title,
+        company: job.company,
+        field: job.field,
+        // Real listings carry everything in a free-text description rather
+        // than a structured requirements list, so pass both — whichever the
+        // job actually has populated is what the model has to work with.
+        description: (job.description || "").substring(0, 1200),
+        requirements: job.requirements,
+      })
+    )
 
     const prompt = `Analyze this CV/Resume and calculate match scores for each job listing.
 
@@ -48,7 +54,7 @@ Jobs to match against:
 ${JSON.stringify(jobSummaries, null, 2)}
 
 For each job, provide:
-1. A match score from 0-100 based on how well the CV matches the job requirements
+1. A match score from 0-100 based on how well the CV matches the job's description and requirements
 2. 2-3 specific reasons why this person would be a good (or poor) match
 
 Consider: years of experience, relevant skills, industry knowledge, certifications, education, and career progression.`
