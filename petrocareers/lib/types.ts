@@ -17,6 +17,9 @@ export interface Job {
     nationalityRequirement: string
     matchScore?: number
     matchReasons?: string[]
+    // Real listing's own apply/redirect link (from the data source), when we
+    // have one. Falls back to a search when absent.
+    applyUrl?: string
 }
 
 export type Sector =
@@ -90,6 +93,23 @@ export const COUNTRIES = [
     "Ireland",
     "France",
     "Denmark",
+  ]
+
+// Countries our real job data source (Adzuna) actually covers. Used purely
+// to label the Country dropdown honestly — the generate-jobs API route has
+// its own copy of this mapping for the actual search logic.
+export const COUNTRIES_WITH_REAL_DATA = [
+    "United States",
+    "United Kingdom",
+    "Australia",
+    "Brazil",
+    "Mexico",
+    "Canada",
+    "Netherlands",
+    "Singapore",
+    "India",
+    "Germany",
+    "France",
   ]
 
 export const REGIONS = [
