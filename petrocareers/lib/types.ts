@@ -34,7 +34,6 @@ export interface Filters {
     field: string
     country: string
     region: string
-    nationality: string
     experience: string
     contractType: string
     salaryMin: number
@@ -121,6 +120,7 @@ export const REGIONS = [
     "North Africa",
     "Gulf of Mexico",
     "South America",
+    "South Asia",
     "Southeast Asia",
     "Australasia",
     "Caspian",
@@ -130,13 +130,18 @@ export const REGIONS = [
     "Western Europe",
   ]
 
-export const NATIONALITIES = [
-    "No Requirement",
-    "GCC Nationals Only",
-    "Local Nationals Only",
-    "EU Citizens Only",
-    "US Citizens Only",
-    "Any Nationality",
+// Regions our real job data source (Adzuna) actually has countries in,
+// derived from COUNTRIES_WITH_REAL_DATA. Used purely to label the Region
+// dropdown honestly, the same way COUNTRIES_WITH_REAL_DATA labels Country —
+// the generate-jobs API route has its own country-to-region mapping for the
+// actual search/filter logic.
+export const REGIONS_WITH_REAL_DATA = [
+    "North America",
+    "Western Europe",
+    "South America",
+    "South Asia",
+    "Southeast Asia",
+    "Australasia",
   ]
 
 export const EXPERIENCE_LEVELS = [
