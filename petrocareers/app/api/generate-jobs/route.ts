@@ -28,6 +28,24 @@ const COUNTRY_NAME_BY_CODE: Record<string, string> = Object.fromEntries(
 
 const SUPPORTED_COUNTRY_LIST = Object.keys(ADZUNA_COUNTRY_CODES).join(", ")
 
+// Maps each of our real-data countries to one of the broad geographic
+// regions in lib/types.ts's REGIONS list, so the Region filter actually
+// narrows results instead of being cosmetic. Countries not listed here
+// have no real data anyway (see ADZUNA_COUNTRY_CODES), so they're left out.
+const REGION_BY_COUNTRY: Record<string, string> = {
+  "United States": "North America",
+  Canada: "North America",
+  Mexico: "North America",
+  "United Kingdom": "Western Europe",
+  Netherlands: "Western Europe",
+  Germany: "Western Europe",
+  France: "Western Europe",
+  Australia: "Australasia",
+  Singapore: "Southeast Asia",
+  India: "South Asia",
+  Brazil: "South America",
+}
+
 // Default markets to search when no country filter is applied — kept to two
 // calls per search to stay well within a free-tier Adzuna quota.
 const DEFAULT_COUNTRY_CODES = ["gb", "us"]
@@ -214,13 +232,14 @@ export async function POST(request: Request) {
         const title = stripHtml(raw.title || "Untitled Role")
         const description = stripHtml(raw.description || "")
         const combinedText = `${title} ${description}`
+        const country = COUNTRY_NAME_BY_CODE[code] || code.toUpperCase()
         jobs.push({
           id: `adzuna-${raw.id}`,
           title,
           company: raw.company?.display_name || "Confidential",
           location: raw.location?.display_name || "Location not specified",
-          country: COUNTRY_NAME_BY_CODE[code] || code.toUpperCase(),
-          region: "",
+          country,
+          region: REGION_BY_COUNTRY[country] || "",
           salary: formatSalary(raw.salary_min, raw.salary_max, code),
           contractType: inferContractType(raw.contract_type, raw.contract_time),
           experienceLevel: inferExperienceLevel(title),
@@ -241,6 +260,12 @@ export async function POST(request: Request) {
         { error: "Couldn't reach the job data provider (Adzuna) right now. Please try again in a moment." },
         { status: 502 }
       )
+    }
+
+    // Region filter: now that every job carries a real derived region, this
+    // actually narrows results instead of being a no-op against real data.
+    if (filters.region && filters.region !== "") {
+      jobs = jobs.filter((job) => job.region === filters.region)
     }
 
     // Best-effort quick-tag filter: if the user picked quick tags, keep only
