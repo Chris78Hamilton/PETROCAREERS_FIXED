@@ -6,14 +6,13 @@ import { Header } from "@/components/header"
 import { JobFilters } from "@/components/job-filters"
 import { JobList } from "@/components/job-list"
 import { SectorTabs } from "@/components/sector-tabs"
-import { Filters, Job, Sector, SECTOR_CONFIG } from "@/lib/types"
+import { Filters, Job, Sector, SECTOR_CONFIG, SECTORS, COUNTRIES_WITH_REAL_DATA } from "@/lib/types"
 
 const initialFilters: Filters = {
   sector: "oil-gas",
   field: "",
   country: "",
   region: "",
-  nationality: "",
   experience: "",
   contractType: "",
   salaryMin: 0,
@@ -132,23 +131,24 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Stats Bar */}
+        {/* Stats Bar — honest, derived from what the app actually does rather
+            than invented figures. No claim here is a number we can't back up. */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-primary">2,500+</div>
-            <div className="text-sm text-muted-foreground">Active Jobs</div>
+            <div className="text-2xl font-bold text-primary">Live</div>
+            <div className="text-sm text-muted-foreground">Powered by Adzuna</div>
           </div>
           <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-primary">150+</div>
-            <div className="text-sm text-muted-foreground">Companies</div>
+            <div className="text-2xl font-bold text-primary">{SECTORS.length}</div>
+            <div className="text-sm text-muted-foreground">Job Sectors</div>
           </div>
           <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-primary">45+</div>
-            <div className="text-sm text-muted-foreground">Countries</div>
+            <div className="text-2xl font-bold text-primary">{COUNTRIES_WITH_REAL_DATA.length}</div>
+            <div className="text-sm text-muted-foreground">Countries with Live Data</div>
           </div>
           <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-primary">50K+</div>
-            <div className="text-sm text-muted-foreground">Placements</div>
+            <div className="text-2xl font-bold text-primary">Real</div>
+            <div className="text-sm text-muted-foreground">Verified Job Listings</div>
           </div>
         </div>
         
