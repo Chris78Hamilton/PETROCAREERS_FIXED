@@ -7,7 +7,7 @@ import {
   COUNTRIES,
   COUNTRIES_WITH_REAL_DATA,
   REGIONS,
-  NATIONALITIES,
+  REGIONS_WITH_REAL_DATA,
   EXPERIENCE_LEVELS,
   CONTRACT_TYPES,
   SECTOR_CONFIG,
@@ -109,27 +109,15 @@ export function JobFilters({ filters, onFiltersChange, onSearch, isLoading }: Jo
             onChange={(e) => handleFilterChange("region", e.target.value)}
             className="w-full h-10 px-3 rounded-md border border-input bg-input text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            {REGIONS.map((region) => (
-              <option key={region} value={region === "All Regions" ? "" : region}>
-                {region}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Nationality Requirement */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Nationality Requirement</label>
-          <select
-            value={filters.nationality}
-            onChange={(e) => handleFilterChange("nationality", e.target.value)}
-            className="w-full h-10 px-3 rounded-md border border-input bg-input text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            {NATIONALITIES.map((nat) => (
-              <option key={nat} value={nat === "No Requirement" ? "" : nat}>
-                {nat}
-              </option>
-            ))}
+            {REGIONS.map((region) => {
+              const hasRealData = region === "All Regions" || REGIONS_WITH_REAL_DATA.includes(region)
+              return (
+                <option key={region} value={region === "All Regions" ? "" : region}>
+                  {region}
+                  {hasRealData ? "" : " (no real listings yet)"}
+                </option>
+              )
+            })}
           </select>
         </div>
 
